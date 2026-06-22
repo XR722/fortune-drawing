@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>福气抽签 · 今日运势</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+:root {
+  --bg-deep: #120c08;
+  --bg-surface: #1e1610;
+  --bg-elevated: #2a1f16;
+  --gold: #d4a843;
+  --gold-light: #e8c96a;
+  --gold-dim: #8b6914;
+  --vermillion: #c43a2b;
+  --vermillion-deep: #8b1a1a;
+  --cream: #f5efe4;
+  --cream-dim: #b8a898;
+  --ink: #3d2c1c;
+  --font-display: 'Noto Serif SC', 'SimSun', 'STSong', serif;
+  --font-body: 'Noto Serif SC', 'PingFang SC', 'Microsoft YaHei', serif;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { font-size: 16px; -webkit-tap-highlight-color: transparent; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--cream);
+  font-family: var(--font-body);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Texture overlay ---- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(196,58,43,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(212,168,67,0.05) 0%, transparent 50%);
+  opacity: 1;
+}
+
+/* ---- Ambient particles ---- */
+.ambient-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  animation: floatUp linear infinite;
+  opacity: 0;
+}
+.particle.gold { background: var(--gold); box-shadow: 0 0 6px var(--gold-light); }
+.particle.red { background: var(--vermillion); box-shadow: 0 0 4px var(--vermillion); }
+.particle.cream { background: var(--cream); }
+
+@keyframes floatUp {
+  0% { transform: translateY(100vh) scale(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+}
+
+/* ---- Main container ---- */
+.app {
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 24px;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ---- Screen management ---- */
+.screen { display: none; width: 100%; flex: 1; }
+.screen.active { display: flex; flex-direction: column; align-items: center; }
+
+/* ==================== HOME SCREEN ==================== */
+#home-screen { justify-content: center; padding-top: 8vh; padding-bottom: 8vh; }
+
+.home-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 48px;
+}
+
+.home-seal {
+  width: 88px;
+  height: 88px;
+  border: 2.5px solid var(--vermillion);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  animation: sealPulse 4s ease-in-out infinite;
+}
+
+@keyframes sealPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(196,58,43,0.4); }
+  50% { box-shadow: 0 0 0 16px rgba(196,58,43,0); }
+}
+
+.home-seal-inner {
+  width: 68px;
+  height: 68px;
+  border: 1.5px solid var(--gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-seal-char {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 900;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.home-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  font-weight: 700;
+  color: var(--cream);
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+
+.home-subtitle {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--cream-dim);
+  letter-spacing: 0.12em;
+  text-align: center;
+}
+
+.home-divider {
+  width: 48px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  margin: 8px 0;
+}
+
+.home-desc {
+  font-size: 0.9rem;
+  color: var(--cream-dim);
+  text-align: center;
+  max-width: 280px;
+  margin-top: 4px;
+  letter-spacing: 0.04em;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 48px;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--bg-deep);
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: transform 0.3s var(--ease-out-expo), box-shadow 0.3s var(--ease-out-expo);
+  box-shadow: 0 4px 24px rgba(212,168,67,0.25);
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-primary:active {
+  transform: scale(0.96);
+  box-shadow: 0 2px 12px rgba(212,168,67,0.15);
+}
+
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%);
+  transform: translateX(-100%);
+  transition: transform 0.6s;
+}
+
+.btn-primary:hover::after { transform: translateX(100%); }
+
+.home-today {
+  margin-top: 32px;
+  font-size: 0.8rem;
+  color: var(--cream-dim);
+  letter-spacing: 0.06em;
+  opacity: 0.6;
+}
+
+/* ==================== QUIZ SCREEN ==================== */
+#quiz-screen { padding-top: 6vh; }
+
+.quiz-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.quiz-counter {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--cream-dim);
+  letter-spacing: 0.06em;
+}
+
+.quiz-counter span {
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 1.6rem;
+}
+
+.quiz-back {
+  background: none;
+  border: none;
+  color: var(--cream-dim);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  padding: 4px;
+  transition: color 0.2s;
+}
+
+.quiz-back:hover { color: var(--cream); }
+
+.quiz-progress {
+  width: 100%;
+  height: 2px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 1px;
+  margin-bottom: 40px;
+  overflow: hidden;
+}
+
+.quiz-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--vermillion), var(--gold));
+  border-radius: 1px;
+  transition: width 0.5s var(--ease-out-expo);
+}
+
+.quiz-question-wrap {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.quiz-question-label {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  color: var(--gold-dim);
+  letter-spacing: 0.12em;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.quiz-question {
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 3.5vw, 1.5rem);
+  font-weight: 600;
+  color: var(--cream);
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 40px;
+  letter-spacing: 0.03em;
+}
+
+.quiz-options {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quiz-option {
+  width: 100%;
+  padding: 16px 20px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--cream);
+  background: var(--bg-surface);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  letter-spacing: 0.03em;
+  transition: all 0.3s var(--ease-out-expo);
+  position: relative;
+  overflow: hidden;
+}
+
+.quiz-option::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--gold);
+  border-radius: 0 2px 2px 0;
+  transform: scaleY(0);
+  transition: transform 0.3s var(--ease-out-expo);
+}
+
+.quiz-option:hover {
+  background: var(--bg-elevated);
+  border-color: rgba(212,168,67,0.2);
+}
+
+.quiz-option:active { transform: scale(0.98); }
+
+.quiz-option.selected {
+  background: var(--bg-elevated);
+  border-color: var(--gold);
+}
+.quiz-option.selected::before { transform: scaleY(1); }
+
+.quiz-option-text {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Question transition animations ---- */
+.quiz-content-exit {
+  animation: quizSlideOut 0.35s var(--ease-out-expo) forwards;
+}
+.quiz-content-enter {
+  animation: quizSlideIn 0.4s 0.05s var(--ease-out-expo) forwards;
+}
+
+@keyframes quizSlideOut {
+  0% { opacity: 1; transform: translateY(0); filter: blur(0); }
+  100% { opacity: 0; transform: translateY(-24px); filter: blur(4px); }
+}
+@keyframes quizSlideIn {
+  0% { opacity: 0; transform: translateY(28px); filter: blur(4px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+/* ---- Calculating overlay ---- */
+.calculating-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: var(--bg-deep);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s var(--ease-out-expo);
+  overflow: hidden;
+}
+.calculating-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.calc-ring {
+  width: 140px;
+  height: 140px;
+  position: relative;
+  margin-bottom: 40px;
+}
+
+.calc-ring-outer {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: var(--gold);
+  animation: calcRingSpin 1.2s linear infinite;
+}
+.calc-ring-outer::before,
+.calc-ring-outer::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid transparent;
+}
+.calc-ring-outer::before {
+  inset: 8px;
+  border-right-color: var(--vermillion);
+  animation: calcRingSpin 1.8s linear infinite reverse;
+}
+.calc-ring-outer::after {
+  inset: 16px;
+  border-bottom-color: var(--gold-dim);
+  animation: calcRingSpin 2.4s linear infinite;
+}
+
+@keyframes calcRingSpin {
+  to { transform: rotate(360deg); }
+}
+
+.calc-seal {
+  position: absolute;
+  inset: 24px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(212,168,67,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: calcSealPulse 1.5s ease-in-out infinite;
+}
+@keyframes calcSealPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212,168,67,0.3); transform: scale(1); }
+  50% { box-shadow: 0 0 0 20px rgba(212,168,67,0); transform: scale(1.04); }
+}
+
+.calc-seal-char {
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 900;
+  color: var(--gold);
+  line-height: 1;
+  animation: calcCharGlow 1.5s ease-in-out infinite;
+}
+@keyframes calcCharGlow {
+  0%, 100% { text-shadow: 0 0 8px rgba(212,168,67,0.3); }
+  50% { text-shadow: 0 0 24px rgba(212,168,67,0.7); }
+}
+
+.calc-text {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--cream-dim);
+  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.calc-dot {
+  display: inline-block;
+  width: 4px;
+  opacity: 0;
+  animation: calcDotBlink 1.2s ease-in-out infinite;
+}
+.calc-dot:nth-child(1) { animation-delay: 0s; }
+.calc-dot:nth-child(2) { animation-delay: 0.3s; }
+.calc-dot:nth-child(3) { animation-delay: 0.6s; }
+
+@keyframes calcDotBlink {
+  0%, 100% { opacity: 0; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-2px); }
+}
+
+.calc-spark {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: var(--gold-light);
+  border-radius: 50%;
+  animation: calcSpark 2s ease-in-out infinite;
+  opacity: 0;
+}
+@keyframes calcSpark {
+  0%, 100% { opacity: 0; transform: scale(0) rotate(0deg) translateX(60px); }
+  50% { opacity: 1; transform: scale(1) rotate(180deg) translateX(70px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiz-content-exit { animation: none; opacity: 0; }
+  .quiz-content-enter { animation: none; opacity: 1; transform: none; filter: none; }
+  .calc-ring-outer,
+  .calc-ring-outer::before,
+  .calc-ring-outer::after { animation: none; }
+  .calc-seal { animation: none; }
+  .calc-seal-char { animation: none; }
+  .calc-dot { animation: none; opacity: 1; }
+  .calc-spark { animation: none; opacity: 0; }
+}
+
+/* ==================== FORTUNE SCREEN ==================== */
+#fortune-screen { justify-content: center; padding-top: 6vh; padding-bottom: 6vh; }
+
+.fortune-card {
+  width: 100%;
+  background: linear-gradient(170deg, #1e1610 0%, #1a120a 100%);
+  border: 1px solid rgba(212,168,67,0.15);
+  border-radius: 16px;
+  padding: 40px 28px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.fortune-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--vermillion), var(--gold), var(--vermillion));
+  border-radius: 16px 16px 0 0;
+}
+
+.fortune-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--vermillion), var(--gold), var(--vermillion));
+}
+
+.fortune-badge {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  color: var(--gold);
+  letter-spacing: 0.15em;
+  margin-bottom: 8px;
+}
+
+.fortune-level {
+  font-family: var(--font-display);
+  font-size: clamp(2.8rem, 8vw, 4rem);
+  font-weight: 900;
+  margin-bottom: 4px;
+  line-height: 1;
+}
+
+.fortune-level.daji { background: linear-gradient(180deg, #ff6b5e 0%, #e8c96a 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.fortune-level.zhongji { background: linear-gradient(180deg, #e8c96a 0%, #d4a843 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.fortune-level.xiaoji { background: linear-gradient(180deg, #d4a843 0%, #c9a86c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.fortune-level.ji { background: linear-gradient(180deg, #b8a898 0%, #9b8a7a 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.fortune-level.moji { background: linear-gradient(180deg, #9b8a7a 0%, #7a6a5a 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+.fortune-poem {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--cream-dim);
+  text-align: center;
+  line-height: 1.8;
+  margin: 16px 0 24px;
+  letter-spacing: 0.04em;
+}
+
+.fortune-detail {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.fortune-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.fortune-row-label {
+  font-size: 0.85rem;
+  color: var(--cream-dim);
+  letter-spacing: 0.04em;
+}
+
+.fortune-row-value {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  color: var(--cream);
+  letter-spacing: 0.04em;
+}
+
+.fortune-advice {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  color: var(--gold);
+  text-align: center;
+  line-height: 1.7;
+  letter-spacing: 0.04em;
+  padding: 16px;
+  background: rgba(212,168,67,0.06);
+  border-radius: 8px;
+  width: 100%;
+  margin-bottom: 28px;
+}
+
+.fortune-date {
+  font-size: 0.75rem;
+  color: var(--cream-dim);
+  letter-spacing: 0.06em;
+  opacity: 0.6;
+}
+
+.fortune-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-top: 24px;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 32px;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  background: transparent;
+  border: 1px solid rgba(212,168,67,0.3);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-out-expo);
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-secondary:active { background: rgba(212,168,67,0.1); border-color: var(--gold); }
+
+.btn-save {
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  border: none;
+  color: var(--bg-deep);
+}
+
+.toast {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg-elevated);
+  color: var(--cream);
+  padding: 12px 28px;
+  border-radius: 50px;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 100;
+  border: 1px solid rgba(212,168,67,0.2);
+  transition: all 0.4s var(--ease-out-expo);
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ---- save overlay ---- */
+.save-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.save-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+.save-overlay-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: var(--cream);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.save-tip {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--cream-dim);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+}
+
+/* ---- responsive ---- */
+@media (max-width: 380px) {
+  .app { padding: 0 16px; }
+  .fortune-card { padding: 32px 20px 28px; }
+  .quiz-question { font-size: 1.1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="ambient-container" id="particles"></div>
+
+<div class="app">
+  <!-- ====== HOME ====== -->
+  <div class="screen active" id="home-screen">
+    <div class="home-brand">
+      <div class="home-seal">
+        <div class="home-seal-inner">
+          <span class="home-seal-char">福</span>
+        </div>
+      </div>
+      <h1 class="home-title">福气抽签</h1>
+      <div class="home-divider"></div>
+      <p class="home-subtitle">今日运势 · 福签指引</p>
+      <p class="home-desc">诚心答五问，福签示天机。每日一测，窥见今日吉凶。</p>
+    </div>
+    <button class="btn-primary" id="btn-start" onclick="startQuiz()">
+      <span>开始抽签</span>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="home-today" id="home-date"></div>
+  </div>
+
+  <!-- ====== QUIZ ====== -->
+  <div class="screen" id="quiz-screen">
+    <div class="quiz-header">
+      <span class="quiz-counter">第 <span id="q-current">1</span> / 5 题</span>
+      <button class="quiz-back" onclick="goHome()">返回</button>
+    </div>
+    <div class="quiz-progress"><div class="quiz-progress-fill" id="q-progress" style="width:0%"></div></div>
+    <div class="quiz-question-wrap" id="quiz-content"></div>
+  </div>
+
+  <!-- ====== FORTUNE ====== -->
+  <div class="screen" id="fortune-screen">
+    <div class="fortune-card" id="fortune-card">
+      <div class="fortune-badge">今日福签</div>
+      <div class="fortune-level" id="f-level"></div>
+      <div class="fortune-poem" id="f-poem"></div>
+      <div class="fortune-detail" id="f-detail"></div>
+      <div class="fortune-advice" id="f-advice"></div>
+      <div class="fortune-date" id="f-date"></div>
+    </div>
+    <div class="fortune-actions">
+      <button class="btn-primary btn-save" onclick="saveFortune()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        保存福签图片
+      </button>
+      <button class="btn-secondary" onclick="retakeQuiz()">重新抽签</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Save overlay -->
+<div class="save-overlay" id="save-overlay" onclick="closeSaveOverlay()">
+  <button class="save-overlay-close" onclick="closeSaveOverlay()">✕</button>
+  <div id="save-image-container"></div>
+  <div class="save-tip">长按图片即可保存分享</div>
+</div>
+
+<!-- Calculating overlay -->
+<div class="calculating-overlay" id="calculating-overlay">
+  <div class="calc-ring" id="calc-ring">
+    <div class="calc-ring-outer"></div>
+    <div class="calc-seal">
+      <span class="calc-seal-char">福</span>
+    </div>
+  </div>
+  <div class="calc-text">
+    <span>正在推算福运</span>
+    <span class="calc-dot">·</span>
+    <span class="calc-dot">·</span>
+    <span class="calc-dot">·</span>
+  </div>
+</div>
+
+<script>
+const questionBank = [];
+
+const CATEGORIES = ['缘分','事业','财运','健康','运势'];
+
+// ============ 题库生成：模板 + 选项轮转 × 多轮 = 1000+ 题 ============
+(function buildQuestionBank() {
+  // 50 个模板，每题 4 个选项，每个选项 5 维分值 [love,career,wealth,health,luck]
+  const templates = {
+    '缘分': [
+      ['今天遇到心仪的人，你的第一反应是？', ['主动上前打招呼',5,3,1,2,4],['悄悄观察等待时机',3,2,2,3,3],['顺其自然随缘',4,1,1,4,5],['假装没看见',1,1,1,2,1]],
+      ['朋友约你参加一个陌生聚会，你会？', ['欣然前往期待新缘分',5,3,2,2,4],['犹豫一下但还是去',3,2,2,3,3],['叫上熟人一起去',2,2,1,2,2],['婉拒享受独处',1,3,1,4,1]],
+      ['对于爱情，你更相信什么？', ['命中注定',4,1,1,2,5],['事在人为',3,5,3,3,2],['缘起缘灭皆是自然',5,2,1,4,4],['不太相信这些',1,4,4,2,1]],
+      ['收到暧昧的晚安消息，你会？', ['心跳加速回复同样暧昧',5,1,1,3,4],['淡定回复但暗自开心',4,2,1,2,3],['直接问清楚对方意思',3,4,2,2,2],['忽略当作群发',1,3,2,1,1]],
+      ['前任突然发来消息，你？', ['激动回复或许还有可能',2,1,1,1,2],['礼貌回复保持距离',3,2,2,3,3],['不回复过去的就过去了',1,3,3,4,3],['拉黑不想再有联系',1,2,2,2,2]],
+      ['和伴侣逛街时意见不合你？', ['各退一步找个折中方案',4,3,2,4,4],['听对方的反正都是小事',5,1,1,3,3],['坚持己见必须按我的来',1,4,2,1,1],['不逛了回家各生闷气',1,1,1,1,1]],
+      ['你相信一见钟情吗？', ['相信那是最纯粹的心动',5,1,1,2,4],['半信半疑还是要相处看看',3,3,2,3,3],['不相信感情需要时间培养',2,4,3,4,2],['完全不信那是见色起意',1,2,2,1,1]],
+      ['伴侣忘记你们的纪念日，你？', ['大发脾气表达不满',1,2,1,1,1],['失落但默默等对方想起来',3,1,1,2,2],['主动提醒给个台阶下',4,3,2,3,3],['无所谓一起过好每一天就好',5,2,2,4,4]],
+      ['你觉得自己在恋爱中是什么类型？', ['体贴温柔型照顾对方',5,2,1,4,4],['独立自主型各有空间',2,4,3,5,3],['热情主动型带动对方',5,3,2,2,4],['被动慢热型需要时间',3,2,2,3,2]],
+      ['伴侣老是忘记你说过的话你？', ['耐心再说一遍',5,1,1,3,3],['提醒一下但不会生气',3,2,2,4,3],['发脾气你怎么什么都记不住',1,2,1,1,1],['算了懒得说了',1,1,1,2,1]],
+    ],
+    '事业': [
+      ['面对一个重要的工作机会，你的态度是？', ['全力以赴志在必得',2,5,4,2,4],['尽力准备平常心对待',3,4,3,4,3],['随缘该来的总会来',4,2,2,3,5],['先观望不急于做决定',2,3,3,2,2]],
+      ['你对当前工作的感受是？', ['热爱并充满干劲',3,5,3,4,4],['稳定但期待突破',2,4,3,3,3],['有点迷茫在寻找方向',2,2,2,2,2],['想换一个全新的领域',1,3,4,1,4]],
+      ['同事在背后议论你，你发现后？', ['当面问清楚坦率沟通',2,4,1,4,3],['做好自己用实力说话',1,5,3,2,3],['一笑而过不放在心上',3,3,2,5,4],['记在心里找机会反击',0,2,1,1,1]],
+      ['老板给你一个很难的任务，你？', ['兴奋这是证明自己的机会',1,5,4,2,4],['认真分析制定计划再行动',2,4,3,3,3],['寻求同事帮助团队合作',3,3,2,2,3],['担心做不好想推掉',1,1,1,2,1]],
+      ['面对职场竞争你的态度是？', ['良性竞争互相促进',3,4,3,4,4],['全力以赴争取第一',2,5,4,2,3],['做好自己不跟别人比',2,3,2,5,3],['能躲就躲不想太累',1,1,1,2,1]],
+      ['你在工作中犯错后？', ['第一时间承认并补救',2,5,3,3,4],['先分析原因再汇报',2,4,3,3,3],['悄悄修复不被发现就好',1,3,2,2,1],['推给外部因素',1,1,1,1,1]],
+      ['今年你最想提升哪方面能力？', ['专业技能',1,5,3,2,3],['管理能力',2,5,3,2,3],['沟通和情商',4,3,2,3,4],['外语或跨界能力',2,4,4,3,4]],
+      ['如何看待副业？', ['已经在做了增加收入',2,5,5,1,4],['想但没时间或方向',2,3,3,2,2],['不感兴趣主业都忙不过来',1,3,2,2,1],['主业稳定比什么都重要',1,3,3,3,2]],
+      ['你觉得工作给你最大的收获是什么？', ['经济独立',1,3,5,2,3],['成就感',1,5,3,2,4],['人际关系',4,3,2,3,3],['成长和历练',2,5,3,3,4]],
+      ['你更想成为哪一种职场人？', ['技术专家深耕一个领域',1,5,4,3,3],['管理者带领团队',2,5,4,2,4],['自由职业者不被束缚',2,3,3,5,3],['斜杠青年多元发展',4,4,4,3,4]],
+    ],
+    '财运': [
+      ['突然多了一笔意外之财你会？', ['好好规划投资理财',1,3,5,2,4],['犒劳自己买喜欢的东西',3,1,2,3,3],['存起来以备不时之需',2,2,4,3,2],['请朋友吃饭分享快乐',5,2,1,2,3]],
+      ['购物时看到喜欢但不必要的东西你？', ['果断买下开心最重要',2,1,1,2,3],['加入购物车冷静一天再说',3,3,4,3,2],['问自己三遍真需要吗',2,4,5,2,2],['纠结半天还是买了',3,1,1,1,2]],
+      ['你对钱是赚出来的怎么看？', ['完全同意开源最重要',2,5,4,1,4],['有道理但节流也很关键',2,4,5,3,3],['因人而异适合自己的就好',3,3,3,4,3],['省钱才是硬道理',1,2,2,2,1]],
+      ['路过彩票店你会？', ['买一张碰碰运气',1,1,1,1,4],['觉得概率太低直接走过',1,3,4,2,2],['和朋友合买乐呵一下',3,1,2,2,3],['研究一下彩票的赔率',1,2,3,1,2]],
+      ['朋友借钱不还你会？', ['直接提醒还钱',1,4,3,2,2],['委婉暗示一下',2,3,2,3,3],['算了就当认清一个人',4,1,1,3,2],['以后不借了但不再提',3,2,2,4,2]],
+      ['如果中了五百万你第一件事做什么？', ['买房或还房贷',2,3,4,3,3],['环游世界享受生活',4,2,1,3,4],['投资让钱生钱',1,4,5,2,4],['分一部分给家里人',5,2,2,3,4]],
+      ['收到一笔退税你？', ['直接存起来',1,3,5,3,2],['吃顿好的',3,2,1,3,3],['交给家里支配',5,2,3,3,3],['投资自己报个课程',1,5,4,3,4]],
+      ['你更喜欢赚钱还是省钱？', ['赚钱开源才是王道',1,5,4,1,4],['省钱积累财富',1,3,5,3,2],['开源节流都不能少',1,4,5,3,3],['够用就行',2,2,2,5,2]],
+      ['你觉得现在最值得投入的是什么？', ['自我提升和学习',2,5,3,3,4],['房产或土地',2,3,5,2,3],['股票基金等金融资产',1,3,5,2,3],['旅行和体验世界',4,2,1,3,4]],
+      ['你对保险的态度是？', ['已经有完善的保障',1,3,4,4,3],['想买但不太懂',2,3,3,3,2],['保险是骗人的',1,2,1,1,1],['只买了社保就够了',1,2,3,2,2]],
+    ],
+    '健康': [
+      ['今天你打算怎么照顾自己的身体？', ['早起锻炼开启活力一天',2,3,2,5,4],['注意饮食清淡健康',2,2,2,4,3],['多喝水少熬夜',1,2,1,3,2],['顺其自然吧',1,1,1,1,1]],
+      ['感到压力山大的时候你通常会？', ['运动出汗释放压力',2,3,2,5,3],['找人倾诉或写日记',4,2,1,3,3],['大吃一顿或买买买',2,1,1,1,2],['一个人静静消化',2,3,2,2,2]],
+      ['凌晨一点手机推送了一条消息你？', ['反正睡不着拿起手机看看',2,1,1,1,2],['瞄一眼不重要就放下',2,2,1,3,2],['放下手机闭眼继续酝酿睡意',2,2,2,5,3],['早就睡了明早再说',2,3,3,5,3]],
+      ['你一周运动几次？', ['每天都要运动',1,2,2,5,3],['三到四次刚刚好',2,3,2,4,3],['一到两次偶尔动动',2,2,2,3,2],['几乎不运动',1,1,1,1,1]],
+      ['熬夜第二天你怎么补救？', ['多喝水补充维生素',1,2,2,4,3],['午睡或提早休息',2,2,2,4,3],['喝咖啡硬撑',1,3,1,1,2],['无所谓习惯熬夜了',1,2,1,1,1]],
+      ['你用什么方式缓解焦虑？', ['冥想或深呼吸',2,2,2,5,4],['运动出一身汗',2,3,2,5,3],['找人聊天倾诉',4,2,1,3,3],['吃甜食或多刷手机',2,1,1,1,1]],
+      ['今天你喝了多少水？', ['两升以上',1,2,2,5,3],['一升左右差不多',1,2,2,4,2],['不到五百毫升',1,2,1,2,1],['忘了喝',1,1,1,1,1]],
+      ['你会定期体检吗？', ['每年都体检',1,3,3,5,3],['两年一次差不多',1,3,2,4,2],['不舒服了才去检查',1,2,1,2,1],['从不体检怕查出问题',1,1,1,1,1]],
+      ['今天的心情是？', ['开心',4,4,3,5,5],['平静',2,3,3,5,3],['焦虑',1,2,1,1,1],['说不清',2,2,2,2,2]],
+      ['你一年感冒几次？', ['几乎不感冒',1,3,2,5,4],['一到两次',2,3,2,4,3],['三四次',1,2,1,2,2],['五次以上',1,1,1,1,1]],
+    ],
+    '运势': [
+      ['出门前看到一只黑猫经过你会？', ['觉得是不祥之兆换个方向走',1,1,1,1,1],['觉得有趣拍个照发朋友圈',3,2,2,3,4],['无所谓继续走自己的路',2,3,3,4,3],['觉得今天运气一定很好',4,4,4,3,5]],
+      ['你对今天的期待是？', ['充满希望相信好事会发生',4,4,4,4,5],['平平淡淡才是真',3,3,3,5,3],['有点忐忑不知道会发生什么',2,2,2,2,2],['无所谓该来的躲不掉',1,2,1,2,1]],
+      ['今天只能做一件事提升运气你选？', ['帮助一个陌生人',5,3,2,3,5],['整理房间断舍离',2,3,4,4,4],['学习一项新技能',2,5,3,2,3],['什么都不做安静待着',1,1,1,5,2]],
+      ['做梦梦到掉牙齿你觉得？', ['预感会有不好的事发生',1,1,1,1,1],['赶紧查一下周公解梦',2,2,2,2,2],['可能是最近压力大了',2,3,2,4,3],['梦而已翻个身继续睡',3,3,3,5,4]],
+      ['捡到一百块钱你会？', ['交给警察或失主',3,3,1,3,5],['请朋友喝奶茶分享小幸运',5,2,1,2,4],['自己留着改善今天伙食',2,2,2,2,3],['觉得是套路赶紧离开',1,2,1,2,1]],
+      ['你认为运气可以被改变吗？', ['积极乐观好运自来',4,4,3,4,5],['努力可以弥补运气',2,5,4,3,3],['运气如潮起潮落周期循环',3,3,3,4,3],['一切都是命改不了',1,1,1,1,1]],
+      ['今天你觉得自己的整体状态是？', ['元气满满冲劲十足',3,5,4,5,5],['还不错可以正常应对',3,4,3,4,4],['一般般平淡无奇',2,3,3,3,3],['不好说感觉不太顺',1,1,1,1,1]],
+      ['如果今天能获得一个超能力，你希望是？', ['读懂别人心思',4,3,2,2,4],['预知未来五分钟',1,4,5,2,5],['超级记忆力',1,5,3,3,3],['永远不觉得累',2,3,2,5,3]],
+      ['你觉得自己是个幸运的人吗？', ['超级幸运体质好事总找我',4,4,4,4,5],['一般有好有坏很正常',2,3,3,4,3],['好像不太走运',1,1,1,2,1],['没注意过不在意',2,2,2,3,2]],
+      ['你觉得好人真的有好报吗？', ['当然相信善良是最大的福气',5,3,2,4,5],['好人不一定有好报但还是要善良',4,3,2,5,4],['不一定但做自己',3,3,3,4,3],['不太信',1,2,2,2,1]],
+    ]
+  };
+
+  let id = 1;
+  const rounds = 20; // 20轮 × 50模板 = 1000题
+
+  for (let r = 0; r < rounds; r++) {
+    for (const [cat, tmpls] of Object.entries(templates)) {
+      for (const tpl of tmpls) {
+        const [text, ...opts] = tpl;
+        // 每轮轮转选项顺序，让同一题干产生不同的选项排列
+        const shift = r % opts.length;
+        const rotated = [...opts.slice(shift), ...opts.slice(0, shift)];
+        questionBank.push({
+          id: id++,
+          category: cat,
+          text,
+          options: rotated.map(o => ({
+            text: o[0],
+            scores: { love: o[1], career: o[2], wealth: o[3], health: o[4], luck: o[5] }
+          }))
+        });
+      }
+    }
+  }
+})();
+const fortuneData = {
+  daji: {
+    name: '大吉',
+    cssClass: 'daji',
+    poems: [
+      '龙腾四海风云会\n凤舞九天日月明\n今日诸事皆顺遂\n福星高照喜盈门',
+      '春风得意马蹄疾\n一日看尽长安花\n良辰吉日福星照\n万事亨通好运来',
+      '紫气东来万象新\n祥云瑞霭满乾坤\n今朝有酒今朝醉\n福禄双全喜自临',
+      '金鳞一跃龙门开\n鸿雁南飞好运来\n千般顺遂皆如意\n万种祥和尽入怀',
+      '旭日东升照九州\n福如东海万古流\n今朝得意须尽欢\n明日风光更上楼',
+      '玉树琼枝瑞雪飘\n瑶台琪树祥云绕\n天官赐福临门早\n紫微高照福星到',
+      '一马平川大道宽\n两全其美福双全\n三阳开泰春风暖\n四海升平乐万年',
+      '锦上添花花更艳\n月中折桂桂尤香\n今朝福运当头照\n喜上眉梢笑满堂',
+      '花开富贵满庭芳\n鸟报佳音绕画梁\n天时地利人和顺\n福禄寿喜聚华堂',
+      '万丈霞光映碧空\n一轮明月照苍穹\n乘风破浪今朝是\n直挂云帆建奇功',
+    ],
+    advice: [
+      '今日宜：大胆行动，把握良机。贵人相助，心想事成。',
+      '今日宜：开拓进取，结交新友。天时地利，事半功倍。',
+      '今日宜：展示才华，表达心意。好风借力，青云直上。',
+      '今日宜：签合同、谈合作、做决策。运势正盛，果断出手。',
+      '今日宜：表白心意、求婚订婚。红鸾星动，良缘天成。',
+      '今日宜：投资理财、开启新项目。财星高照，收益可期。',
+      '今日宜：出行远游、拜访贵人。旅途顺利，所遇皆善。',
+      '今日宜：学习进修、考试面试。文曲星照，下笔如有神。',
+      '今日宜：家庭聚会、孝敬长辈。家和万事兴，福气满门庭。',
+      '今日宜：慈善布施、广结善缘。善有善报，德者有得。',
+    ],
+    details: { love: '红鸾星动', career: '步步高升', wealth: '财源广进', health: '精力充沛', luck: '鸿运当头' }
+  },
+  zhongji: {
+    name: '中吉',
+    cssClass: 'zhongji',
+    poems: [
+      '云开月朗见青天\n水到渠成自有缘\n稳步行来天地阔\n平安喜乐在心田',
+      '柳暗花明又一村\n顺水行舟且向前\n但行好事莫问前程\n吉人自有天相随',
+      '清风徐来水波兴\n花开半看最怡情\n知足常乐天地广\n福气自在平凡中',
+      '千帆过尽见青山\n万木逢春展笑颜\n心有阳光何惧暗\n脚踏实地路自宽',
+      '春华秋实各有时\n夏雨冬雪皆成诗\n顺天应时心不乱\n吉人福报不嫌迟',
+      '半亩方塘一鉴开\n天光云影共徘徊\n寻常景致含真趣\n平淡光阴福自来',
+      '细雨斜风作小寒\n淡烟疏柳媚晴滩\n人间有味是清欢\n平安喜乐最相关',
+      '登高望远天地宽\n脚踏实地梦可攀\n一日一步虽微小\n日积月累成高山',
+      '庭院深深深几许\n杨柳堆烟帘幕低\n静待花开心不躁\n吉运已在不远处',
+      '万物静观皆自得\n四时佳兴与人同\n稳中求进慢慢来\n好事多磨终成功',
+    ],
+    advice: [
+      '今日宜：稳扎稳打，保持耐心。好事多磨，静待佳音。',
+      '今日宜：专注当下，不急于求成。量力而行，水到渠成。',
+      '今日宜：珍惜眼前，感恩所有。平常心即是福。',
+      '今日宜：整理规划，理清思路。磨刀不误砍柴工。',
+      '今日宜：与朋友小聚，聊聊心事。友谊是最大的财富。',
+      '今日宜：读一本好书，学一门技能。充实自我，静待花开。',
+      '今日宜：整理家务、断舍离。环境整洁，心境澄明。',
+      '今日宜：适度运动，舒展筋骨。身体健康是最大的福气。',
+      '今日宜：写下目标清单。目标明确，行动有力。',
+      '今日宜：给家人打个电话。亲情是最暖的港湾。',
+    ],
+    details: { love: '和风细雨', career: '稳中有进', wealth: '小有进账', health: '身心舒畅', luck: '吉星高照' }
+  },
+  xiaoji: {
+    name: '小吉',
+    cssClass: 'xiaoji',
+    poems: [
+      '微风吹过留余香\n细雨润物细无声\n小小的幸运在转角\n用心感受生活的甜',
+      '一叶知秋意渐浓\n半壶清茶品人生\n小确幸藏在日常里\n发现即是拥有',
+      '星光不问赶路人\n时光不负有心人\n小小的善意结善果\n今日定有好事生',
+      '清晨露珠晶莹透\n午后阳光暖悠悠\n生活不在波澜阔\n细水长流最温柔',
+      '小小纸船漂水上\n悠悠心愿寄远方\n不必惊天动地事\n平淡之中有光芒',
+      '路边小花自芬芳\n墙角小草也昂扬\n不争春色不争艳\n自有清欢在心房',
+      '一杯暖茶一本书\n几缕阳光几片云\n忙里偷闲片刻静\n小确幸是最美诗',
+      '云淡风轻午后闲\n鸟语花香小院前\n知足之人常喜乐\n感恩之心最值钱',
+      '轻轻一个微笑道\n暖暖一句问候来\n小小善意传出去\n福气悄悄绕回来',
+      '人生不必太匆忙\n偶有惊喜在路上\n小小期待如星火\n足以照亮这时光',
+    ],
+    advice: [
+      '今日宜：关注细节，发现美好。小幸运就在身边。',
+      '今日宜：放慢脚步，享受当下。不贪多，知足常乐。',
+      '今日宜：保持微笑，传递善意。善有善报，福往福来。',
+      '今日宜：给自己买个小礼物。取悦自己，值得被爱。',
+      '今日宜：记录一件开心的小事。美好值得被记住。',
+      '今日宜：整理手机相册，回忆美好瞬间。',
+      '今日宜：尝试一道新菜谱。生活需要一点新鲜感。',
+      '今日宜：给朋友发个问候。小小的温暖能点亮一天。',
+      '今日宜：换条路回家。换个角度，风景不同。',
+      '今日宜：早睡半小时。善待身体，从今晚开始。',
+    ],
+    details: { love: '小有惊喜', career: '按部就班', wealth: '平稳顺遂', health: '注意调养', luck: '渐入佳境' }
+  },
+  ji: {
+    name: '吉',
+    cssClass: 'ji',
+    poems: [
+      '山重水复疑无路\n柳暗花明又一村\n寻常日子寻常过\n平安二字值千金',
+      '日出而作日落息\n春耕秋收自然理\n顺天应时心不乱\n平平淡淡才是真',
+      '人间烟火最暖心\n粗茶淡饭亦香甜\n不必求大富大贵\n健康快乐每一天',
+      '柴米油盐皆滋味\n锅碗瓢盆也成诗\n寻常百姓寻常福\n安心即是最好时',
+      '早出晚归忙生计\n朝九晚五有归期\n虽无惊天动地事\n平安喜乐已足兮',
+      '门前老树发新芽\n檐下归燕又安家\n岁月静好人如意\n平平常常最可夸',
+      '一粥一饭当思量\n半丝半缕念久长\n惜福之人福常在\n感恩之心福满堂',
+      '日复一日看似同\n年复一年各不同\n寻常之中见真谛\n简单生活亦从容',
+      '莫羡他人富贵多\n自家灯火也暖和\n知足常足心不累\n健康平安就是歌',
+      '风吹窗帘轻轻动\n月照床头静静看\n一日忙碌终有尽\n好好休息最心安',
+    ],
+    advice: [
+      '今日宜：按部就班，做好本分。不求有功，但求无过。',
+      '今日宜：多喝水少生气。平常心面对一切。',
+      '今日宜：善待自己，也善待他人。和气生财。',
+      '今日宜：完成拖延已久的小事。做完比完美重要。',
+      '今日宜：散个步，呼吸新鲜空气。换个脑子。',
+      '今日宜：整理桌面或文件夹。外在整洁带来内在秩序。',
+      '今日宜：一个人吃顿饭。独处也是一种力量。',
+      '今日宜：存一笔小钱。聚沙成塔，集腋成裘。',
+      '今日宜：早早上床，睡个好觉。休息是最好的投资。',
+      '今日宜：做一件坚持了很久的事。持之以恒，水滴石穿。',
+    ],
+    details: { love: '平淡是真', career: '稳扎稳打', wealth: '量入为出', health: '注意休息', luck: '中平之运' }
+  },
+  moji: {
+    name: '末吉',
+    cssClass: 'moji',
+    poems: [
+      '风雨过后见彩虹\n寒冬之后是暖春\n今日虽有小波折\n明朝更有好前程',
+      '船到桥头自然直\n车到山前必有路\n莫愁前路无知己\n天下谁人不识君',
+      '塞翁失马焉非福\n福兮祸之所伏\n看淡得失心自在\n笑对人生百般味',
+      '沉舟侧畔千帆过\n病树前头万木春\n暂困浅滩何足惧\n终将一跃入龙门',
+      '行到水穷处\n坐看云起时\n低谷是高峰的开始\n蛰伏是腾飞的序曲',
+      '不经一番寒彻骨\n哪得梅花扑鼻香\n今日磨砺皆是宝\n他日回忆皆成光',
+      '莫被浮云遮望眼\n风物长宜放眼量\n今日得失无需挂\n来日方长路更宽',
+      '深山夕照深秋雨\n古道西风瘦马行\n历尽沧桑方知味\n洗尽铅华始见金',
+      '世事如棋局局新\n人生似梦梦还真\n看开一点心自在\n放下片刻即是春',
+      '长风破浪会有时\n直挂云帆济沧海\n暂时低谷不为惧\n且看明朝好运来',
+    ],
+    advice: [
+      '今日宜：低调行事，谨言慎行。避免冲突，以退为进。',
+      '今日宜：沉淀自我，反思总结。暂时的低谷是为更好的起跳。',
+      '今日宜：多些耐心，少些焦躁。守得云开见月明。',
+      '今日宜：少说话，多倾听。言多必失，静观其变。',
+      '今日宜：检查备份重要文件。防患未然，有备无患。',
+      '今日宜：独处静静心。冥想或深呼吸十分钟。',
+      '今日忌：冲动消费、重大决定。三思而行，等风平浪静。',
+      '今日忌：与人争执、口舌之争。退一步海阔天空。',
+      '今日宜：复习旧知识而非学新。温故知新，巩固根基。',
+      '今日宜：对自己说一句鼓励的话。你是自己最好的朋友。',
+    ],
+    details: { love: '冷静沉淀', career: '以守为攻', wealth: '谨慎理财', health: '注意调养', luck: '静待转机' }
+  }
+};
+
+// ==================== APP STATE ====================
+let currentQuestions = [];
+let currentIndex = 0;
+let answers = [];
+
+// ==================== HELPERS ====================
+
+function seedRandom(seed) {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) {
+    h = ((h << 5) - h + seed.charCodeAt(i)) | 0;
+  }
+  return function() {
+    h = (h * 1103515245 + 12345) & 0x7fffffff;
+    return h / 0x7fffffff;
+  };
+}
+
+function shuffle(arr, rng) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function getTodayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function getTodaySeed() {
+  return getTodayStr();
+}
+
+function pickTodayQuestions() {
+  // Each person gets different random questions on the same day
+  const byCategory = {};
+  questionBank.forEach(q => {
+    if (!byCategory[q.category]) byCategory[q.category] = [];
+    byCategory[q.category].push(q);
+  });
+  const categories = Object.keys(byCategory);
+  // Shuffle categories
+  for (let i = categories.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [categories[i], categories[j]] = [categories[j], categories[i]];
+  }
+  const picked = [];
+  // Pick one from each category first
+  for (const cat of categories) {
+    if (picked.length >= 5) break;
+    const pool = byCategory[cat];
+    picked.push(pool[Math.floor(Math.random() * pool.length)]);
+  }
+  // If still need more, pick randomly from remaining
+  while (picked.length < 5) {
+    const remaining = questionBank.filter(q => !picked.find(p => p.id === q.id));
+    if (remaining.length === 0) break;
+    picked.push(remaining[Math.floor(Math.random() * remaining.length)]);
+  }
+  // Final shuffle
+  for (let i = picked.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [picked[i], picked[j]] = [picked[j], picked[i]];
+  }
+  return picked.slice(0, 5);
+}
+
+// Particle system
+function createParticles() {
+  const container = document.getElementById('particles');
+  const colors = ['gold', 'red', 'cream'];
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = `particle ${colors[Math.floor(Math.random() * colors.length)]}`;
+    const size = 2 + Math.random() * 4;
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = 6 + Math.random() * 12 + 's';
+    p.style.animationDelay = Math.random() * 8 + 's';
+    container.appendChild(p);
+  }
+}
+
+// Screen switching
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id + '-screen').classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+// Toast
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timeout);
+  t._timeout = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ==================== QUIZ LOGIC ====================
+
+function goHome() {
+  showScreen('home');
+}
+
+function startQuiz() {
+  currentQuestions = pickTodayQuestions();
+  currentIndex = 0;
+  answers = [];
+  renderQuestion();
+  showScreen('quiz');
+}
+
+function renderQuestion() {
+  if (currentIndex >= currentQuestions.length) {
+    showCalculating();
+    return;
+  }
+  const q = currentQuestions[currentIndex];
+  document.getElementById('q-current').textContent = currentIndex + 1;
+  document.getElementById('q-progress').style.width = (currentIndex / 5 * 100) + '%';
+
+  const content = document.getElementById('quiz-content');
+  // Remove transition classes, set initial state for enter animation
+  content.classList.remove('quiz-content-exit', 'quiz-content-enter');
+
+  content.innerHTML = `
+    <div class="quiz-question-label">${q.category}</div>
+    <div class="quiz-question">${q.text}</div>
+    <div class="quiz-options">
+      ${q.options.map((opt, i) => `
+        <button class="quiz-option" onclick="selectAnswer(${i}, this)" data-index="${i}">
+          <span class="quiz-option-text">${opt.text}</span>
+        </button>
+      `).join('')}
+    </div>
+  `;
+
+  // Force reflow then trigger enter animation
+  void content.offsetWidth;
+  content.classList.add('quiz-content-enter');
+}
+
+function selectAnswer(idx, el) {
+  if (el.classList.contains('selected')) return;
+
+  el.parentElement.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+
+  const q = currentQuestions[currentIndex];
+  answers.push({ questionId: q.id, scores: q.options[idx].scores });
+
+  // Trigger exit animation on question content
+  const content = document.getElementById('quiz-content');
+  content.classList.remove('quiz-content-enter');
+  content.classList.add('quiz-content-exit');
+
+  // After exit animation completes, advance
+  const exitDuration = 350;
+  setTimeout(() => {
+    currentIndex++;
+    if (currentIndex >= currentQuestions.length) {
+      document.getElementById('q-progress').style.width = '100%';
+      renderQuestion(); // will call showCalculating()
+    } else {
+      document.getElementById('q-progress').style.width = (currentIndex / 5 * 100) + '%';
+      renderQuestion();
+    }
+  }, exitDuration);
+}
+
+// ==================== CALCULATING OVERLAY ====================
+
+function showCalculating() {
+  // Switch to fortune screen immediately so quiz content is gone
+  showScreen('fortune');
+  // Hide fortune card until overlay finishes
+  const card = document.getElementById('fortune-card');
+  card.style.opacity = '0';
+  card.style.transform = 'scale(0.92) translateY(20px)';
+
+  const overlay = document.getElementById('calculating-overlay');
+  overlay.classList.add('active');
+
+  // Dynamic spark particles
+  const ring = document.getElementById('calc-ring');
+  ring.querySelectorAll('.calc-spark').forEach(s => s.remove());
+  for (let i = 0; i < 8; i++) {
+    const spark = document.createElement('div');
+    spark.className = 'calc-spark';
+    spark.style.animationDelay = (i * 0.25) + 's';
+    spark.style.top = '50%';
+    spark.style.left = '50%';
+    ring.appendChild(spark);
+  }
+
+  // Determine fortune — do calculation now, reveal after delay
+  computeFortune();
+
+  // After ~3 seconds, reveal fortune
+  setTimeout(() => {
+    overlay.classList.remove('active');
+    setTimeout(() => {
+      card.style.transition = 'opacity 0.6s var(--ease-out-expo), transform 0.6s var(--ease-out-expo)';
+      card.style.opacity = '1';
+      card.style.transform = 'scale(1) translateY(0)';
+    }, 200);
+  }, 3000);
+}
+
+// ==================== FORTUNE LOGIC ====================
+
+function computeFortune() {
+  const totals = { love: 0, career: 0, wealth: 0, health: 0, luck: 0 };
+  answers.forEach(a => {
+    for (const [k, v] of Object.entries(a.scores)) {
+      totals[k] += v;
+    }
+  });
+
+  const totalScore = Object.values(totals).reduce((a, b) => a + b, 0);
+  const maxPossible = 5 * 5 * 5;
+  const ratio = totalScore / maxPossible;
+
+  let levelKey;
+  if (ratio >= 0.8) levelKey = 'daji';
+  else if (ratio >= 0.6) levelKey = 'zhongji';
+  else if (ratio >= 0.45) levelKey = 'xiaoji';
+  else if (ratio >= 0.3) levelKey = 'ji';
+  else levelKey = 'moji';
+
+  const fortune = fortuneData[levelKey];
+  const poemIdx = Math.floor(Math.random() * fortune.poems.length);
+  const adviceIdx = Math.floor(Math.random() * fortune.advice.length);
+  const poem = fortune.poems[poemIdx];
+  const advice = fortune.advice[adviceIdx];
+
+  document.getElementById('f-level').textContent = fortune.name;
+  document.getElementById('f-level').className = 'fortune-level ' + fortune.cssClass;
+  document.getElementById('f-poem').innerHTML = poem.replace(/\n/g, '<br>');
+  document.getElementById('f-advice').textContent = advice;
+
+  const dtl = fortune.details;
+  document.getElementById('f-detail').innerHTML = `
+    <div class="fortune-row"><span class="fortune-row-label">缘分</span><span class="fortune-row-value">${dtl.love}</span></div>
+    <div class="fortune-row"><span class="fortune-row-label">事业</span><span class="fortune-row-value">${dtl.career}</span></div>
+    <div class="fortune-row"><span class="fortune-row-label">财运</span><span class="fortune-row-value">${dtl.wealth}</span></div>
+    <div class="fortune-row"><span class="fortune-row-label">健康</span><span class="fortune-row-value">${dtl.health}</span></div>
+    <div class="fortune-row"><span class="fortune-row-label">运势</span><span class="fortune-row-value">${dtl.luck}</span></div>
+  `;
+
+  const today = new Date();
+  document.getElementById('f-date').textContent =
+    `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日 · 福气抽签`;
+}
+
+function retakeQuiz() {
+  showScreen('home');
+}
+
+// ==================== SAVE & SHARE ====================
+
+// Resolve fortune-level gradient to solid color for html2canvas
+const FORTUNE_LEVEL_COLORS = {
+  daji: '#e8c96a',
+  zhongji: '#d4a843',
+  xiaoji: '#d4a843',
+  ji: '#b8a898',
+  moji: '#9b8a7a',
+};
+
+async function saveFortune() {
+  try {
+    showToast('正在生成福签图片...');
+
+    // Create a clean render for screenshot
+    const container = document.getElementById('save-image-container');
+    const fortuneCard = document.getElementById('fortune-card');
+
+    container.innerHTML = fortuneCard.outerHTML;
+    const clone = container.querySelector('.fortune-card');
+    clone.style.transform = 'none';
+    clone.style.opacity = '1';
+
+    // Apply inline styles so html2canvas renders colors correctly
+    // (CSS variables & gradient text don't work in html2canvas)
+    const badge = clone.querySelector('.fortune-badge');
+    if (badge) badge.style.color = '#d4a843';
+
+    const level = clone.querySelector('.fortune-level');
+    if (level) {
+      for (const [cls, solidColor] of Object.entries(FORTUNE_LEVEL_COLORS)) {
+        if (level.classList.contains(cls)) {
+          level.style.color = solidColor;
+          level.style.background = 'none';
+          level.style.webkitBackgroundClip = 'unset';
+          level.style.webkitTextFillColor = solidColor;
+          break;
+        }
+      }
+    }
+
+    const poem = clone.querySelector('.fortune-poem');
+    if (poem) poem.style.color = '#b8a898';
+
+    clone.querySelectorAll('.fortune-row-value').forEach(el => {
+      el.style.color = '#f5efe4';
+    });
+
+    const advice = clone.querySelector('.fortune-advice');
+    if (advice) advice.style.color = '#d4a843';
+
+    const date = clone.querySelector('.fortune-date');
+    if (date) { date.style.color = '#b8a898'; date.style.opacity = '0.6'; }
+
+    // Wait for fonts
+    await new Promise(r => setTimeout(r, 200));
+
+    const canvas = await html2canvas(clone, {
+      backgroundColor: '#1e1610',
+      scale: 2,
+      useCORS: true,
+      logging: false,
+    });
+
+    // Convert canvas to <img> so mobile can long-press to save/share
+    const img = new Image();
+    img.src = canvas.toDataURL('image/png');
+    img.style.maxWidth = '100%';
+    img.style.borderRadius = '16px';
+    img.style.display = 'block';
+
+    container.innerHTML = '';
+    container.appendChild(img);
+
+    document.getElementById('save-overlay').classList.add('show');
+    showToast('长按图片即可保存分享');
+  } catch (e) {
+    console.error(e);
+    showToast('生成失败，请重试');
+  }
+}
+
+function closeSaveOverlay() {
+  document.getElementById('save-overlay').classList.remove('show');
+}
+
+// ==================== INIT ====================
+
+function init() {
+  document.getElementById('home-date').textContent =
+    `今日 · ${getTodayStr().replace(/-/g, '年').replace(/-/, '月')}日`;
+  createParticles();
+}
+
+init();
+</script>
+</body>
+</html>
