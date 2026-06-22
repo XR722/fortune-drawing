@@ -360,19 +360,39 @@ body::before {
 
 /* ---- Question transition animations ---- */
 .quiz-content-exit {
-  animation: quizSlideOut 0.35s var(--ease-out-expo) forwards;
+  animation: quizSlideOut 0.28s var(--ease-out-expo) forwards;
 }
 .quiz-content-enter {
-  animation: quizSlideIn 0.4s 0.05s var(--ease-out-expo) forwards;
+  animation: quizSlideIn 0.45s var(--ease-out-expo) forwards;
 }
 
 @keyframes quizSlideOut {
-  0% { opacity: 1; transform: translateY(0); filter: blur(0); }
-  100% { opacity: 0; transform: translateY(-24px); filter: blur(4px); }
+  0% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  100% { opacity: 0; transform: translateY(-20px) scale(0.97); filter: blur(5px); }
 }
 @keyframes quizSlideIn {
-  0% { opacity: 0; transform: translateY(28px); filter: blur(4px); }
-  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+  0% { opacity: 0; transform: translateY(36px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Staggered item reveal */
+.quiz-stagger-item {
+  opacity: 0;
+  transform: translateY(24px);
+}
+.quiz-content-enter .quiz-stagger-item {
+  animation: quizItemReveal 0.5s var(--ease-out-expo) forwards;
+}
+@keyframes quizItemReveal {
+  0% { opacity: 0; transform: translateY(24px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Option confirmation pulse before exit */
+.quiz-option.confirmed {
+  background: rgba(212,168,67,0.1);
+  border-color: var(--gold);
+  box-shadow: 0 0 16px rgba(212,168,67,0.12);
 }
 
 /* ---- Calculating overlay ---- */
@@ -502,6 +522,7 @@ body::before {
 @media (prefers-reduced-motion: reduce) {
   .quiz-content-exit { animation: none; opacity: 0; }
   .quiz-content-enter { animation: none; opacity: 1; transform: none; filter: none; }
+  .quiz-stagger-item { animation: none; opacity: 1; transform: none; }
   .calc-ring-outer,
   .calc-ring-outer::before,
   .calc-ring-outer::after { animation: none; }
@@ -1196,15 +1217,14 @@ function renderQuestion() {
   document.getElementById('q-progress').style.width = (currentIndex / 5 * 100) + '%';
 
   const content = document.getElementById('quiz-content');
-  // Remove transition classes, set initial state for enter animation
   content.classList.remove('quiz-content-exit', 'quiz-content-enter');
 
   content.innerHTML = `
-    <div class="quiz-question-label">${q.category}</div>
-    <div class="quiz-question">${q.text}</div>
+    <div class="quiz-question-label quiz-stagger-item" style="animation-delay:0s">${q.category}</div>
+    <div class="quiz-question quiz-stagger-item" style="animation-delay:0.06s">${q.text}</div>
     <div class="quiz-options">
       ${q.options.map((opt, i) => `
-        <button class="quiz-option" onclick="selectAnswer(${i}, this)" data-index="${i}">
+        <button class="quiz-option quiz-stagger-item" style="animation-delay:${0.12 + i * 0.07}s" onclick="selectAnswer(${i}, this)" data-index="${i}">
           <span class="quiz-option-text">${opt.text}</span>
         </button>
       `).join('')}
@@ -1219,29 +1239,34 @@ function renderQuestion() {
 function selectAnswer(idx, el) {
   if (el.classList.contains('selected')) return;
 
+  // Clear previous selection and mark current
   el.parentElement.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
   el.classList.add('selected');
 
   const q = currentQuestions[currentIndex];
   answers.push({ questionId: q.id, scores: q.options[idx].scores });
 
-  // Trigger exit animation on question content
-  const content = document.getElementById('quiz-content');
-  content.classList.remove('quiz-content-enter');
-  content.classList.add('quiz-content-exit');
+  // Brief confirmation pulse then exit
+  el.classList.add('confirmed');
 
-  // After exit animation completes, advance
-  const exitDuration = 350;
   setTimeout(() => {
-    currentIndex++;
-    if (currentIndex >= currentQuestions.length) {
-      document.getElementById('q-progress').style.width = '100%';
-      renderQuestion(); // will call showCalculating()
-    } else {
-      document.getElementById('q-progress').style.width = (currentIndex / 5 * 100) + '%';
-      renderQuestion();
-    }
-  }, exitDuration);
+    el.classList.remove('confirmed');
+    const content = document.getElementById('quiz-content');
+    content.classList.remove('quiz-content-enter');
+    content.classList.add('quiz-content-exit');
+
+    // After exit animation, advance
+    setTimeout(() => {
+      currentIndex++;
+      if (currentIndex >= currentQuestions.length) {
+        document.getElementById('q-progress').style.width = '100%';
+        renderQuestion();
+      } else {
+        document.getElementById('q-progress').style.width = (currentIndex / 5 * 100) + '%';
+        renderQuestion();
+      }
+    }, 280);
+  }, 180);
 }
 
 // ==================== CALCULATING OVERLAY ====================
