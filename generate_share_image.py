@@ -12,17 +12,6 @@ border = 48
 draw.rectangle([border, border, W-border, H-border], outline='#d4a843', width=4)
 draw.rectangle([border+16, border+16, W-border-16, H-border-16], outline='#8b6914', width=2)
 
-# Corner ornaments
-corner_size = 80
-corners = [
-    (border, border),
-    (W-border-corner_size, border),
-    (border, H-border-corner_size),
-    (W-border-corner_size, H-border-corner_size)
-]
-for cx, cy in corners:
-    draw.arc([cx, cy, cx+corner_size, cy+corner_size], 0, 90, fill='#d4a843', width=4)
-
 # Fortune character 福
 try:
     font_fu = ImageFont.truetype("C:/Windows/Fonts/simhei.ttf", 420)
