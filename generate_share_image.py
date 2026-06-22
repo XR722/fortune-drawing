@@ -2,18 +2,10 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 
 W = H = 1024
-img = Image.new('RGB', (W, H), '#1a0f0a')
+img = Image.new('RGB', (W, H), '#000000')
 draw = ImageDraw.Draw(img)
 
-# Background gradient-ish noise dots
-import random
-random.seed(42)
-for _ in range(6000):
-    x = random.randint(0, W)
-    y = random.randint(0, H)
-    r = random.randint(1, 2)
-    alpha = random.randint(20, 60)
-    draw.ellipse([x-r, y-r, x+r, y+r], fill=(212, 168, 67, alpha))
+# Pure black background, no noise dots
 
 # Decorative border
 border = 48
